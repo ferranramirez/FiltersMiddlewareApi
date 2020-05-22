@@ -1,7 +1,9 @@
 using FiltersApi.Filters.Authentication;
-using FiltersApi.MiddleWare.Exception;
+using FiltersApi.Filters.Exception;
+using FiltersApi.Filters.Timer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -24,10 +26,11 @@ namespace FiltersApi
 
             services.AddJwtAuthentication(Configuration);
 
-            //services.AddMvc(options =>
-            //{
-            //    options.Filters.Add(typeof(ApiExceptionFilter));
-            //}).SetCompatibilityVersion(CompatibilityVersion.Latest);
+            services.AddMvc(options =>
+            {
+                options.Filters.Add(typeof(TimerActionFilter));
+                options.Filters.Add(typeof(ApiExceptionFilter));
+            }).SetCompatibilityVersion(CompatibilityVersion.Latest);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -39,8 +42,7 @@ namespace FiltersApi
             }
 
             //app.UseApiExceptionHandler();
-
-            app.UseMiddleware<MyFilterExceptionMiddleware>();
+            //app.UseMiddleware<MyFilterExceptionMiddleware>();
 
             app.UseHttpsRedirection();
 
