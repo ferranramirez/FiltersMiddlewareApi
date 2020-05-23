@@ -27,9 +27,18 @@ namespace FiltersApi.MiddleWare.Exception
         {
             var tokenClaims = GetTokenClaims(context.Request.Headers["Authorization"]);
 
-            string email = tokenClaims.Any() ? tokenClaims.First(c => string.Equals(c.Type, ClaimTypes.Email)).Value : "anonymous";
-            string role = tokenClaims.Any() ? tokenClaims.First(c => string.Equals(c.Type, ClaimTypes.Role)).Value : "none";
+            string email = tokenClaims.Any() ?
+                    tokenClaims.First(c => string.Equals(c.Type, ClaimTypes.Email)).Value : "anonymous";
+            string role = tokenClaims.Any() ?
+                    tokenClaims.First(c => string.Equals(c.Type, ClaimTypes.Role)).Value : "none";
+            var scopeClaims = new Dictionary<string, string>
+            {
+                { "Email", email },
+                { "Role", role }
+            };
 
+            // Kibana does not show the dictionary, uncomment just for Seq
+            // using (_logger.BeginScope(scopeClaims)) 
             using (_logger.BeginScope(email))
             using (_logger.BeginScope(role))
             {

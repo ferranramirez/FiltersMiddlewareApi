@@ -29,11 +29,11 @@ namespace FiltersApi.MiddleWare.Exception
             }
             catch (MyFilterException ex) when (LogWarning(ex))
             {
-                HandleExceptionAsync(context, ex);
+                await HandleExceptionAsync(context, ex);
             }
             catch (System.Exception ex) when (LogError(ex))
             {
-                HandleExceptionAsync(context, ex);
+                await HandleExceptionAsync(context, ex);
             }
         }
 

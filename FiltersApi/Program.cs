@@ -10,16 +10,17 @@ namespace FiltersApi
     public class Program
     {
         public static IConfiguration Configuration { get; } = new ConfigurationBuilder()
-               .SetBasePath(Directory.GetCurrentDirectory())
-               .AddJsonFile("appSettings.json", optional: false, reloadOnChange: true)
-               .AddEnvironmentVariables()
-               .Build();
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appSettings.json", optional: false, reloadOnChange: true)
+            .AddEnvironmentVariables()
+            .Build();
+
         public static void Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
-                   .Enrich.FromLogContext()
                    .ReadFrom.Configuration(Configuration)
                    .WriteTo.Seq("http://localhost:5341")
+                   .WriteTo.Elasticsearch(Environment.GetEnvironmentVariable("ELASTIC_URL") ?? "http://localhost:9200")
                    .CreateLogger();
 
             try
@@ -39,10 +40,10 @@ namespace FiltersApi
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .UseSerilog()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                    webBuilder.UseSerilog();
                 });
     }
 }
