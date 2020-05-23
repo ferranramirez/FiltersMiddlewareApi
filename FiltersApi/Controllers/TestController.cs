@@ -14,18 +14,16 @@ namespace FiltersApi.Controllers
         private readonly ILogger<TestController> _logger;
         private FiltersBusiness _filtersBusiness;
 
-        public TestController(ILogger<TestController> logger)
+        public TestController(ILogger<TestController> logger, FiltersBusiness filtersBusiness)
         {
             _logger = logger;
-            _filtersBusiness = new FiltersBusiness();
+            _filtersBusiness = filtersBusiness;
         }
 
         // [Authorize]
         [HttpGet]
-        public IActionResult Get()
+        public IActionResult ParentThrowSomeException()
         {
-            _logger.LogInformation("Test endpoint called");
-
             _filtersBusiness.ParentThrowSomeException();
 
             return Ok("Generic result");

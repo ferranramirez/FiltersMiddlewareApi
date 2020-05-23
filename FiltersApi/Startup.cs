@@ -1,5 +1,6 @@
+using Business;
 using FiltersApi.Filters.Authentication;
-using FiltersApi.Filters.Exception;
+using FiltersApi.MiddleWare.Exception;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -23,12 +24,14 @@ namespace FiltersApi
         {
             services.AddControllers();
 
+            services.AddScoped<FiltersBusiness>();
+
             services.AddJwtAuthentication(Configuration);
 
             services.AddMvc(options =>
             {
                 //options.Filters.Add(typeof(TimerActionFilter));
-                options.Filters.Add(typeof(ApiExceptionFilter));
+                //options.Filters.Add(typeof(ApiExceptionFilter));
             }).SetCompatibilityVersion(CompatibilityVersion.Latest);
         }
 
@@ -40,7 +43,7 @@ namespace FiltersApi
                 app.UseDeveloperExceptionPage();
             }
 
-            //app.UseApiExceptionHandler();
+            app.UseApiExceptionHandler();
             //app.UseMiddleware<MyFilterExceptionMiddleware>();
 
             app.UseHttpsRedirection();

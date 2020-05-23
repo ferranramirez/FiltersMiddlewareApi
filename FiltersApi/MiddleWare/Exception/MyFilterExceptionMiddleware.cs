@@ -1,8 +1,8 @@
 ﻿using Business.ExceptionFilter;
+using FiltersApi.Filters.Exception;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -25,50 +25,70 @@ namespace FiltersApi.MiddleWare.Exception
         {
             try
             {
-                await _next(context);
+                using (_logger.BeginScope("using scope: ParentThrowSomeException()"))
+                using (_logger.BeginScope("User", "NoUser"))
+                {
+                    _logger.LogInformation("Super information");
+
+                    await _next(context);
+                }
+
+                _logger.LogInformation("After");
             }
-            catch (System.Exception ex)
+            catch (MyFilterException ex) when (LogWarning(ex))
             {
-                await HandleExceptionAsync(context, ex);
+                HandleExceptionAsync(context, ex);
+            }
+            catch (System.Exception ex) when (LogError(ex))
+            {
+                HandleExceptionAsync(context, ex);
             }
         }
 
-        private Task HandleExceptionAsync(HttpContext filterContext, System.Exception exception)
+        private bool LogWarning(System.Exception ex)
         {
-            string message;
+            _logger.LogWarning(
+                new EventId(0),
+                ex,
+                $"Application thrown error: {ex.Message}");
+
+            return true;
+        }
+        private bool LogError(System.Exception ex)
+        {
+            _logger.LogError(
+                new EventId(0),
+                ex,
+                $"Unhandled exception: {ex.Message}");
+            return true;
+        }
+
+        private Task HandleExceptionAsync(HttpContext context, System.Exception exception)
+        {
+            var apiError = new ApiError();
 
             if (exception is MyFilterException)
             {
                 var ex = exception as MyFilterException;
 
-                message = ex.Message;
+                apiError.Message = ex.Message;
 
-                filterContext.Response.StatusCode = 543;
+                apiError.ErrorCode = ex.ErrorCode;
 
-                _logger.LogWarning($"Application thrown error: {message}", ex);
-            }
-            else if (exception is UnauthorizedAccessException)
-            {
-                var ex = exception as UnauthorizedAccessException;
-
-                message = ex.Message;
-
-                filterContext.Response.StatusCode = 444;
-
-                _logger.LogWarning($"Application thrown error: {message}", ex);
+                context.Response.StatusCode = 543;
             }
             else
             {
-                message = exception.GetBaseException().Message;
+                apiError.Message = exception.GetBaseException().Message;
 
-                filterContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                apiError.ErrorCode = (int)HttpStatusCode.InternalServerError;
 
-                _logger.LogError($"Unhandled exception: {message}", exception.StackTrace);
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             }
 
-            var result = JsonConvert.SerializeObject(message);
+            var result = JsonConvert.SerializeObject(apiError);
 
-            return filterContext.Response.WriteAsync(result);
+            return context.Response.WriteAsync(result);
         }
     }
 }
