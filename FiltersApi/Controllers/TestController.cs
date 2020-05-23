@@ -24,7 +24,7 @@ namespace FiltersApi.Controllers
         [HttpGet]
         public IActionResult ParentThrowSomeException()
         {
-            _filtersBusiness.ParentThrowSomeException();
+            //_filtersBusiness.ParentThrowSomeException();
 
             return Ok("Generic result");
         }
@@ -33,6 +33,16 @@ namespace FiltersApi.Controllers
         public IActionResult Get2()
         {
             _logger.LogInformation("Test endpoint NonHandled called");
+
+            _filtersBusiness.ThrowSomeException();
+
+            return Ok("Generic result");
+        }
+
+        [HttpGet("Auth")]
+        public IActionResult AuthorizationTest()
+        {
+            _logger.LogInformation("Test endpoint AuthorizationTest called");
 
             _filtersBusiness.ThrowSomeException();
 

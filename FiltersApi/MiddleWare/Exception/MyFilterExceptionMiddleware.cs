@@ -25,15 +25,7 @@ namespace FiltersApi.MiddleWare.Exception
         {
             try
             {
-                using (_logger.BeginScope("using scope: ParentThrowSomeException()"))
-                using (_logger.BeginScope("User", "NoUser"))
-                {
-                    _logger.LogInformation("Super information");
-
-                    await _next(context);
-                }
-
-                _logger.LogInformation("After");
+                await _next(context);
             }
             catch (MyFilterException ex) when (LogWarning(ex))
             {
@@ -76,6 +68,11 @@ namespace FiltersApi.MiddleWare.Exception
                 apiError.ErrorCode = ex.ErrorCode;
 
                 context.Response.StatusCode = 543;
+
+                _logger.LogWarning(
+                    new EventId(0),
+                    ex,
+                    $"Application thrown error: {ex.Message}");
             }
             else
             {
@@ -84,6 +81,11 @@ namespace FiltersApi.MiddleWare.Exception
                 apiError.ErrorCode = (int)HttpStatusCode.InternalServerError;
 
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+                _logger.LogError(
+                    new EventId(0),
+                    exception,
+                    $"Unhandled exception: {exception.Message}");
             }
 
             var result = JsonConvert.SerializeObject(apiError);

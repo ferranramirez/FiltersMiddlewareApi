@@ -8,7 +8,7 @@ namespace FiltersApi.Filters.Exception
 {
     public class ApiExceptionFilter : IExceptionFilter
     {
-        private ILogger<ApiExceptionFilter> _logger;
+        private readonly ILogger<ApiExceptionFilter> _logger;
 
         public ApiExceptionFilter(ILogger<ApiExceptionFilter> logger)
         {
@@ -36,7 +36,6 @@ namespace FiltersApi.Filters.Exception
                     new EventId(0),
                     ex,
                     $"Application thrown error: {ex.Message}");
-
             }
             else
             {

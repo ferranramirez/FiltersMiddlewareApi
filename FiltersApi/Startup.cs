@@ -1,5 +1,6 @@
 using Business;
 using FiltersApi.Filters.Authentication;
+using FiltersApi.Filters.Exception;
 using FiltersApi.MiddleWare.Exception;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -31,7 +32,7 @@ namespace FiltersApi
             services.AddMvc(options =>
             {
                 //options.Filters.Add(typeof(TimerActionFilter));
-                //options.Filters.Add(typeof(ApiExceptionFilter));
+                options.Filters.Add(typeof(ApiExceptionFilter));
             }).SetCompatibilityVersion(CompatibilityVersion.Latest);
         }
 
@@ -43,8 +44,8 @@ namespace FiltersApi
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseApiExceptionHandler();
-            //app.UseMiddleware<MyFilterExceptionMiddleware>();
+            app.UseMiddleware<LogScopeMiddleware>();
+            // app.UseApiExceptionHandler(); // It can be used instead of the "ApiExceptionFilter"
 
             app.UseHttpsRedirection();
 
