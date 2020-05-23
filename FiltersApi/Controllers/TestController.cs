@@ -1,5 +1,4 @@
 ﻿using Business;
-using FiltersApi.Filters.Timer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -8,7 +7,7 @@ namespace FiltersApi.Controllers
     [ApiController]
     // in case we don't inject it in the startup with the addMvc function, to have it in all the controllers
     // [TypeFilter(typeof(ApiExceptionFilter))]
-    [TypeFilter(typeof(TimerActionFilter))]
+    // [TypeFilter(typeof(TimerActionFilter))]
     [Route("[controller]")]
     public class TestController : ControllerBase
     {

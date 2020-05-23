@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
+using System.Net;
 
 namespace FiltersApi.Filters.Exception
 {
@@ -17,7 +18,7 @@ namespace FiltersApi.Filters.Exception
         public void OnException(ExceptionContext filterContext)
         {
             var exception = filterContext.Exception;
-            string message;
+            var apiError = new ApiError();
 
             if (exception is MyFilterException)
             {
@@ -25,22 +26,33 @@ namespace FiltersApi.Filters.Exception
 
                 filterContext.Exception = null;
 
-                message = ex.Message;
+                apiError.Message = ex.Message;
+
+                apiError.ErrorCode = ex.ErrorCode;
 
                 filterContext.HttpContext.Response.StatusCode = 543;
 
-                _logger.LogWarning($"Application thrown error: {message}", ex);
+                _logger.LogWarning(
+                    new EventId(0),
+                    ex,
+                    $"Application thrown error: {ex.Message}");
+
             }
             else
             {
-                message = filterContext.Exception.GetBaseException().Message;
+                apiError.Message = filterContext.Exception.GetBaseException().Message;
 
-                filterContext.HttpContext.Response.StatusCode = 500;
+                apiError.ErrorCode = (int)HttpStatusCode.InternalServerError;
 
-                _logger.LogError($"Unhandled exception: {message}", exception.StackTrace);
+                filterContext.HttpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+                _logger.LogError(
+                    new EventId(0),
+                    exception,
+                    $"Unhandled exception: {exception.Message}");
             }
 
-            filterContext.Result = new JsonResult(message);
+            filterContext.Result = new JsonResult(apiError);
 
             filterContext.ExceptionHandled = true;
         }

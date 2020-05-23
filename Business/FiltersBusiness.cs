@@ -13,7 +13,7 @@ namespace Business
             }
             catch (ArithmeticException ex)
             {
-                throw new MyFilterException("This is my really handled custom exception", ex);
+                throw new MyFilterException("This is my really handled custom exception", ex, 1234);
             }
         }
 

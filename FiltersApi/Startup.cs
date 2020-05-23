@@ -1,6 +1,5 @@
 using FiltersApi.Filters.Authentication;
 using FiltersApi.Filters.Exception;
-using FiltersApi.Filters.Timer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +27,7 @@ namespace FiltersApi
 
             services.AddMvc(options =>
             {
-                options.Filters.Add(typeof(TimerActionFilter));
+                //options.Filters.Add(typeof(TimerActionFilter));
                 options.Filters.Add(typeof(ApiExceptionFilter));
             }).SetCompatibilityVersion(CompatibilityVersion.Latest);
         }
